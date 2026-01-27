@@ -4,20 +4,7 @@ import (
 	"net/http"
 )
 
-var htmlContent = `
-		<!DOCTYPE html>
-		<html>
-		<head>
-			<title>%s</title>
-		</head>
-		<body>
-			%s
-		</body>
-		</html>
-		`
-
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.infoLog.Printf("%s %s", r.Method, r.URL.Path)
 	app.render(w, "index.html", nil)
 }
 
