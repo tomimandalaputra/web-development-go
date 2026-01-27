@@ -39,9 +39,9 @@ func (t *TemplateRenderer) Render(w http.ResponseWriter, templateName string, da
 
 func (t *TemplateRenderer) getTemplate(templateName string) (*template.Template, error) {
 	if !t.devMode {
-		t.mutex.Lock()
+		t.mutex.RLock()
 		tmpl, ok := t.cache[templateName]
-		t.mutex.Unlock()
+		t.mutex.RUnlock()
 
 		if ok {
 			return tmpl, nil
