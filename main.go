@@ -3,8 +3,11 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
+	"time"
 
+	"github.com/golangcollege/sessions"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -15,6 +18,7 @@ type application struct {
 	templateDir string
 	publicPath  string
 	tp          *TemplateRenderer
+	session     *sessions.Session
 }
 
 func main() {
@@ -25,12 +29,18 @@ func main() {
 	}
 	defer db.Close()
 
+	session := sessions.New([]byte("u46IpCV9y5Vlur8YvXXXODJEhgOY8m9JVE4"))
+	session.Lifetime = 2 * time.Hour
+	session.Secure = true
+	session.SameSite = http.SameSiteLaxMode
+
 	app := &application{
 		errorLog:    log.New(os.Stdout, "ERROR\t", log.Ltime|log.LstdFlags|log.Lmicroseconds|log.Lshortfile),
 		infoLog:     log.New(os.Stdout, "INFO\t", log.Ltime|log.LstdFlags),
 		userRepo:    NewSQLUserRepository(db),
 		templateDir: "./templates",
 		publicPath:  "./public",
+		session:     session,
 	}
 
 	app.tp = NewTemplateRenderer(app.templateDir, false)

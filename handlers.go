@@ -5,10 +5,12 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	app.infoLog.Printf("Session data: %s", app.session.GetString(r, "userID"))
 	app.render(w, "index.html", nil)
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
+	app.session.Put(r, "userID", "tomi")
 	app.render(w, "login.html", nil)
 }
 
