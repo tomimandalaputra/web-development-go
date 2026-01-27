@@ -25,3 +25,7 @@ func (app *application) about(w http.ResponseWriter, r *http.Request) {
 func (app *application) contact(w http.ResponseWriter, r *http.Request) {
 	app.render(w, "contact.html", nil)
 }
+
+func (app *application) submit(w http.ResponseWriter, r *http.Request) {
+	app.render(w, "submit.html", nil)
+}
