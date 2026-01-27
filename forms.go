@@ -11,6 +11,8 @@ import (
 
 type errors map[string][]string
 
+var EmailRx = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+
 func (e errors) Add(field, message string) {
 	e[field] = append(e[field], message)
 }
