@@ -27,8 +27,10 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 			Matches("email", EmailRx)
 
 		if !form.Valid() {
-			app.errorLog.Printf("Invalid form: %+v", form.Errors)
-			app.render(w, r, "login.html", nil)
+			form.Errors.Add("generic", "Invalid credentials provided")
+			app.render(w, r, "login.html", &templateData{
+				Form: form,
+			})
 			return
 		}
 
@@ -38,7 +40,9 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		app.infoLog.Printf("Ligged in with email %s; %s\n", email, password)
 	}
 
-	app.render(w, r, "login.html", nil)
+	app.render(w, r, "login.html", &templateData{
+		Form: NewForm(r.PostForm),
+	})
 }
 
 func (app *application) register(w http.ResponseWriter, r *http.Request) {
