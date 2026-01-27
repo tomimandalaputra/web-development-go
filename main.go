@@ -13,6 +13,7 @@ type application struct {
 	infoLog     *log.Logger
 	userRepo    UserRepository
 	templateDir string
+	tp          *TemplateRenderer
 }
 
 func main() {
@@ -29,6 +30,8 @@ func main() {
 		userRepo:    NewSQLUserRepository(db),
 		templateDir: "./templates",
 	}
+
+	app.tp = NewTemplateRenderer(app.templateDir, false)
 
 	log.Print("Listening on :8080")
 	if err := app.serve(); err != nil {
