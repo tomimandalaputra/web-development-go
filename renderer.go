@@ -30,7 +30,7 @@ func (t *TemplateRenderer) Render(w http.ResponseWriter, templateName string, da
 		return
 	}
 
-	err = tmpl.Execute(w, data)
+	err = tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

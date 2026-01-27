@@ -1,15 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
+{{define "content"}}
+<div class="container">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Title</title>
-</head>
+  <div class="posts-list">
+    {{range $index :=5}}
+    <div class="post-item">
+      <div class="post-rank">1</div>
+      <div class="post-content">
+        <div class="post-title">
+          Show HN: Built a HackerNews clone in Go
+          <a href="#" class="post-link" target="_blank">Title</a>
+          <span class="post-domain">localhost.com</span>
 
-<body>
-  <h1>Home Page Template</h1>
-  <p>Welcome to our simple blog</p>
-</body>
+          <a href="/post/12111" class="post-link">Tomtom</a>
+        </div>
+        <div class="post-meta">
+          <span class="points">2 points</span>
+          by <a href="/user/1" class="author">AJ</a>
+          <span class="time">1 mins ago</span>
+          <a href="/post/2222" class="comments-link">12 comments</a>
+        </div>
+      </div>
+    </div>
+    {{end}}
+  </div>
 
-</html>
+  <div class="pagination">
+    <a href="/?page=1" class="more-link">Prev</a>
+    <a href="/?page=1" class="more-link">Next</a>
+  </div>
+
+</div>
+{{end}}
