@@ -15,6 +15,12 @@ type TemplateRenderer struct {
 	templateDir string
 }
 
+type templateData struct {
+	Form            Form
+	IsAuthenticated bool
+	Flash           string
+}
+
 func NewTemplateRenderer(templateDir string, devMode bool) *TemplateRenderer {
 	return &TemplateRenderer{
 		cache:       make(map[string]*template.Template),

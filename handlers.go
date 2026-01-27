@@ -6,7 +6,7 @@ import (
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// app.infoLog.Printf("Session data: %s", app.session.GetString(r, "userID"))
-	app.render(w, "index.html", nil)
+	app.render(w, r, "index.html", nil)
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +28,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 
 		if !form.Valid() {
 			app.errorLog.Printf("Invalid form: %+v", form.Errors)
-			app.render(w, "login.html", form)
+			app.render(w, r, "login.html", nil)
 			return
 		}
 
@@ -38,21 +38,21 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		app.infoLog.Printf("Ligged in with email %s; %s\n", email, password)
 	}
 
-	app.render(w, "login.html", nil)
+	app.render(w, r, "login.html", nil)
 }
 
 func (app *application) register(w http.ResponseWriter, r *http.Request) {
-	app.render(w, "register.html", nil)
+	app.render(w, r, "register.html", nil)
 }
 
 func (app *application) about(w http.ResponseWriter, r *http.Request) {
-	app.render(w, "about.html", nil)
+	app.render(w, r, "about.html", nil)
 }
 
 func (app *application) contact(w http.ResponseWriter, r *http.Request) {
-	app.render(w, "contact.html", nil)
+	app.render(w, r, "contact.html", nil)
 }
 
 func (app *application) submit(w http.ResponseWriter, r *http.Request) {
-	app.render(w, "submit.html", nil)
+	app.render(w, r, "submit.html", nil)
 }
