@@ -5,12 +5,25 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.infoLog.Printf("Session data: %s", app.session.GetString(r, "userID"))
+	// app.infoLog.Printf("Session data: %s", app.session.GetString(r, "userID"))
 	app.render(w, "index.html", nil)
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	app.session.Put(r, "userID", "tomi")
+	// app.session.Put(r, "userID", "tomi")
+
+	if r.Method == http.MethodPost {
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		app.infoLog.Printf("Ligged in with email %s; %s\n", email, password)
+	}
+
 	app.render(w, "login.html", nil)
 }
 
