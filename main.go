@@ -9,9 +9,10 @@ import (
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	userRepo UserRepository
+	errorLog    *log.Logger
+	infoLog     *log.Logger
+	userRepo    UserRepository
+	templateDir string
 }
 
 func main() {
@@ -23,9 +24,10 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		errorLog: log.New(os.Stdout, "ERROR\t", log.Ltime|log.LstdFlags|log.Lmicroseconds|log.Lshortfile),
-		infoLog:  log.New(os.Stdout, "INFO\t", log.Ltime|log.LstdFlags),
-		userRepo: NewSQLUserRepository(db),
+		errorLog:    log.New(os.Stdout, "ERROR\t", log.Ltime|log.LstdFlags|log.Lmicroseconds|log.Lshortfile),
+		infoLog:     log.New(os.Stdout, "INFO\t", log.Ltime|log.LstdFlags),
+		userRepo:    NewSQLUserRepository(db),
+		templateDir: "./templates",
 	}
 
 	log.Print("Listening on :8080")

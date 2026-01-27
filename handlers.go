@@ -19,8 +19,7 @@ var htmlContent = `
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.infoLog.Printf("%s %s", r.Method, r.URL.Path)
-	homeContent := fmt.Sprintf(htmlContent, "Home", "<h1>Welcome to my web app</h1>")
-	_, _ = w.Write([]byte(homeContent))
+	app.render(w, "index.html", nil)
 }
 
 func (app *application) contact(w http.ResponseWriter, r *http.Request) {
