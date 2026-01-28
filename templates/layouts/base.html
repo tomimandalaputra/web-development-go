@@ -12,6 +12,10 @@
   {{template "header.html" .}}
 
   <main class="main-content">
+    {{with .Flash}}
+    <div class="flash">{{.}}</div>
+    {{end}}
+
     {{template "content" .}}
   </main>
 

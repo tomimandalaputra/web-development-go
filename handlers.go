@@ -13,7 +13,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	app.infoLog.Printf("Logged In User ID: %d", app.session.GetInt(r, loggedInUserKey))
+	app.infoLog.Printf("Logged In: %s", app.session.GetString(r, loggedInUserKey))
 
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
@@ -39,7 +39,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 
 		email := r.FormValue("email")
 		password := r.FormValue("password")
-		id, err := app.userRepo.Authenticate(email, password)
+		_, err := app.userRepo.Authenticate(email, password)
 		if err != nil {
 			form.Errors.Add("generic", err.Error())
 			app.render(w, r, "login.html", &templateData{
@@ -48,7 +48,8 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		app.session.Put(r, loggedInUserKey, id)
+		app.session.Put(r, loggedInUserKey, email)
+		app.session.Put(r, "flash", "You are logged in")
 
 		app.infoLog.Println("Logged in")
 		http.Redirect(w, r, "/submit", http.StatusSeeOther)

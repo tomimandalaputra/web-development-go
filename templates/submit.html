@@ -2,14 +2,11 @@
 <div class="container">
   <div class="auth-form">
     <h2>Submit a post</h2>
-    {{if .Error}}
-    <div class="error-message">{{.Error}}</div>
-    {{end}}
 
     <form action="/submit" method="post" autocomplete="off">
       <div class="form-group">
         <label for="username">Post Url:</label>
-        <input type="text" id="username" name="username" value="{{.Username}}" required>
+        <input type="text" id="username" name="username" value="" required>
       </div>
 
 
