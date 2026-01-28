@@ -11,7 +11,7 @@ import (
 var ErrInvalidCredential = errors.New("invalid credentials")
 
 type UserRepository interface {
-	CreateUser(name, email, hashedPassword, avatar string) (int64, error)
+	CreateUser(name, email, plainPassword, avatar string) (int, error)
 	GetUserByEmail(email string) (*User, error)
 	GetUsers() ([]User, error)
 	Authenticate(email, password string) (int, error)
@@ -28,7 +28,7 @@ func NewSQLUserRepository(db *sql.DB) UserRepository {
 	}
 }
 
-func (r *SQLUserRepository) CreateUser(name, email, plainPassword, avatar string) (int64, error) {
+func (r *SQLUserRepository) CreateUser(name, email, plainPassword, avatar string) (int, error) {
 	ctx := context.Background()
 
 	tx, err := r.db.BeginTx(ctx, nil)
@@ -73,7 +73,7 @@ func (r *SQLUserRepository) CreateUser(name, email, plainPassword, avatar string
 	if err != nil {
 		return 0, err
 	}
-	return userID, nil
+	return int(userID), nil
 }
 
 func (r *SQLUserRepository) GetUserByEmail(email string) (*User, error) {
