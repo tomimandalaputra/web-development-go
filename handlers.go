@@ -4,6 +4,10 @@ import (
 	"net/http"
 )
 
+const (
+	loggedInUserKey = "logged_in_user"
+)
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// app.infoLog.Printf("Session data: %s", app.session.GetString(r, "userID"))
 	app.render(w, r, "index.html", nil)
@@ -36,8 +40,19 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 
 		email := r.FormValue("email")
 		password := r.FormValue("password")
+		id, err := app.userRepo.Authenticate(email, password)
+		if err != nil {
+			form.Errors.Add("generic", err.Error())
+			app.render(w, r, "login.html", &templateData{
+				Form: form,
+			})
+			return
+		}
 
-		app.infoLog.Printf("Ligged in with email %s; %s\n", email, password)
+		app.session.Put(r, loggedInUserKey, id)
+
+		app.infoLog.Println("Logged in")
+		http.Redirect(w, r, "/submit", http.StatusSeeOther)
 	}
 
 	app.render(w, r, "login.html", &templateData{

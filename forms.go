@@ -27,13 +27,13 @@ func (e formErrors) Get(field string) string {
 
 type Form struct {
 	url.Values
-	formErrors formErrors
+	Errors formErrors
 }
 
 func NewForm(form url.Values) *Form {
 	return &Form{
-		Values:     form,
-		formErrors: formErrors(map[string][]string{}),
+		Values: form,
+		Errors: formErrors(map[string][]string{}),
 	}
 }
 
@@ -43,14 +43,14 @@ func (f *Form) Required(fields ...string) *Form {
 		if strings.TrimSpace(value) == "" {
 			label := []rune(field)
 			label[0] = unicode.ToUpper(label[0])
-			f.formErrors.Add(field, fmt.Sprintf("%s is required", string(label)))
+			f.Errors.Add(field, fmt.Sprintf("%s is required", string(label)))
 		}
 	}
 	return f
 }
 
 func (f *Form) Valid() bool {
-	return len(f.formErrors) == 0
+	return len(f.Errors) == 0
 }
 
 func (f *Form) MinLength(field string, n int) *Form {
@@ -60,7 +60,7 @@ func (f *Form) MinLength(field string, n int) *Form {
 	}
 
 	if utf8.RuneCountInString(value) < n {
-		f.formErrors.Add(field, fmt.Sprintf("This field is too short (minimum of %d characters)", n))
+		f.Errors.Add(field, fmt.Sprintf("This field is too short (minimum of %d characters)", n))
 	}
 
 	return f
@@ -73,7 +73,7 @@ func (f *Form) MaxLength(field string, n int) *Form {
 	}
 
 	if utf8.RuneCountInString(value) > n {
-		f.formErrors.Add(field, fmt.Sprintf("This field is too long (maximum of %d characters)", n))
+		f.Errors.Add(field, fmt.Sprintf("This field is too long (maximum of %d characters)", n))
 	}
 
 	return f
@@ -86,7 +86,7 @@ func (f *Form) Matches(field string, pattern *regexp.Regexp) *Form {
 	}
 
 	if !pattern.MatchString(value) {
-		f.formErrors.Add(field, "This field is invalid")
+		f.Errors.Add(field, "This field is invalid")
 	}
 
 	return f
