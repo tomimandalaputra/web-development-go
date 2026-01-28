@@ -13,7 +13,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	app.infoLog.Printf("Logged In: %s", app.session.GetString(r, loggedInUserKey))
+	if app.isAuthenticated(r) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
@@ -51,8 +54,8 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		app.session.Put(r, loggedInUserKey, email)
 		app.session.Put(r, "flash", "You are logged in")
 
-		app.infoLog.Println("Logged in")
 		http.Redirect(w, r, "/submit", http.StatusSeeOther)
+		return
 	}
 
 	app.render(w, r, "login.html", &templateData{
@@ -60,7 +63,19 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (app *application) logout(w http.ResponseWriter, r *http.Request) {
+	app.session.Remove(r, loggedInUserKey)
+	app.session.Put(r, "flash", "Your are logged out")
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func (app *application) register(w http.ResponseWriter, r *http.Request) {
+	if app.isAuthenticated(r) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -98,7 +113,9 @@ func (app *application) register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		app.session.Put(r, "flash", "You are registered")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
 	}
 
 	app.render(w, r, "register.html", &templateData{
