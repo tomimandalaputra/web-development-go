@@ -3,13 +3,9 @@
   <div class="page-content">
     <h1>Contact Us</h1>
 
-    {{if .Success}}
     <div class="success-message">Thank you for your message! We'll get back to you soon.</div>
-    {{end}}
 
-    {{if .Error}}
-    <div class="error-message">{{.Error}}</div>
-    {{end}}
+    <div class="error-message">xxxxxxxxx</div>
 
     <form action="/contact" method="post" class="contact-form">
       <div class="form-group">
