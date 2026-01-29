@@ -60,7 +60,7 @@ func (f *Form) MinLength(field string, n int) *Form {
 	}
 
 	if utf8.RuneCountInString(value) < n {
-		f.Errors.Add(field, fmt.Sprintf("This field is too short (minimum of %d characters)", n))
+		f.Errors.Add(field, fmt.Sprintf("This field %s is too short (minimum of %d characters)", field, n))
 	}
 
 	return f
@@ -73,7 +73,7 @@ func (f *Form) MaxLength(field string, n int) *Form {
 	}
 
 	if utf8.RuneCountInString(value) > n {
-		f.Errors.Add(field, fmt.Sprintf("This field is too long (maximum of %d characters)", n))
+		f.Errors.Add(field, fmt.Sprintf("This field %s is too long (maximum of %d characters)", field, n))
 	}
 
 	return f
@@ -86,7 +86,20 @@ func (f *Form) Matches(field string, pattern *regexp.Regexp) *Form {
 	}
 
 	if !pattern.MatchString(value) {
-		f.Errors.Add(field, "This field is invalid")
+		f.Errors.Add(field, fmt.Sprintf("This field %s is invalid", field))
+	}
+
+	return f
+}
+
+func (f *Form) IsEmail(field string) *Form {
+	value := f.Get(field)
+	if value == "" {
+		return f
+	}
+
+	if !EmailRx.MatchString(value) {
+		f.Errors.Add(field, fmt.Sprintf("This field %s is not a valid email address", field))
 	}
 
 	return f
