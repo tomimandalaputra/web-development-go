@@ -132,5 +132,45 @@ func (app *application) contact(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) submit(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "submit.html", nil)
+	if r.Method == http.MethodPost {
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		form := NewForm(r.PostForm)
+		form.Required("title", "url").
+			MaxLength("title", 255).
+			MaxLength("url", 255).
+			MinLength("url", 3)
+
+		if !form.Valid() {
+			form.Errors.Add("generic", "The data you submitted was not valid")
+			app.render(w, r, "submit.html", &templateData{
+				Form: NewForm(r.PostForm),
+			})
+			return
+		}
+
+		title := r.FormValue("title")
+		url := r.FormValue("url")
+		id, err := app.postRepo.CreatePost(title, url, 1)
+
+		if err != nil {
+			app.errorLog.Printf("Error creating post: %s\n", err.Error())
+			form.Errors.Add("generic", "creation of post failed")
+			app.render(w, r, "submit.html", &templateData{
+				Form: NewForm(r.PostForm),
+			})
+			return
+		}
+
+		app.session.Put(r, "flash", "post created")
+		app.infoLog.Printf("Post created with %d\n", id)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+
+	app.render(w, r, "submit.html", &templateData{
+		Form: NewForm(r.PostForm),
+	})
 }
