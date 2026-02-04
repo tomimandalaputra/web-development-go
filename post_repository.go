@@ -272,3 +272,47 @@ func (r *SQLPostRepository) GetAll(filter Filter) ([]Post, Metadata, error) {
 	metadata := calculateMetadata(totalRecords, filter.Page, filter.PageSize)
 	return posts, metadata, nil
 }
+
+func (r *SQLPostRepository) GetComments(postID int) ([]Comment, error) {
+	query := `
+		SELECT c.id, c.body, c.user_id, c.post_id, c.created_at, u.name as user_name
+		FROM comments c
+		LEFT JOIN user u ON c.user_id = u.id
+		WHERE c.post_id = ?
+		ORDER BY c.created_at ASC
+	`
+
+	rows, err := r.db.Query(query, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var comments []Comment
+	for rows.Next() {
+		var comment Comment
+		err := rows.Scan(
+			&comment.ID,
+			&comment.Body,
+			&comment.UserID,
+			&comment.PostID,
+			&comment.CreatedAt,
+			&comment.UserName,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		comments = append(comments, comment)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(comments) == 0 {
+		return []Comment{}, nil
+	}
+
+	return comments, nil
+}
