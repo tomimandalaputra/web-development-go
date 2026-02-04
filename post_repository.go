@@ -200,15 +200,16 @@ func (r *SQLPostRepository) GetAll(filter Filter) ([]Post, Metadata, error) {
 	}
 
 	baseQuery := `
+	SELECT	
 		COUNT(*) OVER() as total_records,
-		p.id, p.title, p.user_id, p.created_at,
+		p.id, p.title, p.url, p.user_id, p.created_at,
 		u.name as user_name,
 		COUNT(DISTINCT c.id) as comment_count,
 		COUNT(DISTINCT v.user_id) as vote_count
 		FROM posts p
 		LEFT JOIN users u ON p.user_id = u.id
-		LEFT JOIN comments u ON p.id = c.post_id
-		LEFT JOIN votes u ON p.id = c.post_id
+		LEFT JOIN comments c ON p.id = c.post_id
+		LEFT JOIN votes v ON p.id = v.post_id
 	`
 
 	var args []interface{}
