@@ -35,10 +35,10 @@ type Comment struct {
 }
 
 type Filter struct {
-	Page     int `json:"page"`
-	PageSize int `json:"page_size"`
-	OrderBy  int `json:"order_by"`
-	Query    int `json:"query"`
+	Page     int    `json:"page"`
+	PageSize int    `json:"page_size"`
+	OrderBy  string `json:"order_by"`
+	Query    string `json:"query"`
 }
 
 func (f *Filter) Validate() error {
@@ -192,4 +192,83 @@ func (r *SQLPostRepository) GetByID(id int) (*Post, error) {
 	}
 
 	return &post, nil
+}
+
+func (r *SQLPostRepository) GetAll(filter Filter) ([]Post, Metadata, error) {
+	if err := filter.Validate(); err != nil {
+		return nil, Metadata{}, err
+	}
+
+	baseQuery := `
+		COUNT(*) OVER() as total_records,
+		p.id, p.title, p.user_id, p.created_at,
+		u.name as user_name,
+		COUNT(DISTINCT c.id) as comment_count,
+		COUNT(DISTINCT v.user_id) as vote_count
+		FROM posts p
+		LEFT JOIN users u ON p.user_id = u.id
+		LEFT JOIN comments u ON p.id = c.post_id
+		LEFT JOIN votes u ON p.id = c.post_id
+	`
+
+	var args []interface{}
+	argIndex := 1
+
+	if filter.Query != "" {
+		baseQuery += " WHERE LOWER(p.title) LIKE ?"
+		args = append(args, "%"+strings.ToLower(filter.Query)+"%")
+		argIndex++
+	}
+
+	baseQuery += " GROUP BY p.id, p.title, p.url, p.user_id, p.created_at, u.name"
+	if filter.OrderBy == "popular" {
+		baseQuery += " ORDER BY vote_count DESC, p.created_at DESC"
+	} else {
+		baseQuery += " ORDER BY p.created_at DESC"
+	}
+
+	limit := filter.PageSize
+	offset := (filter.Page - 1) * filter.PageSize
+	baseQuery += " LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
+
+	rows, err := r.db.Query(baseQuery, args...)
+	if err != nil {
+		return nil, Metadata{}, err
+	}
+	defer rows.Close()
+
+	var posts []Post
+	var totalRecords int
+
+	for rows.Next() {
+		var post Post
+		err := rows.Scan(
+			&post.TotalRecords,
+			&post.ID,
+			&post.Title,
+			&post.URL,
+			&post.UserID,
+			&post.CreatedAt,
+			&post.UserName,
+			&post.CommentCount,
+			&post.VoteCount,
+		)
+		if err != nil {
+			return nil, Metadata{}, err
+		}
+		post.TotalRecords = totalRecords
+		posts = append(posts, post)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, Metadata{}, err
+	}
+
+	if len(posts) == 0 {
+		return []Post{}, Metadata{}, nil
+	}
+
+	metadata := calculateMetadata(totalRecords, filter.Page, filter.PageSize)
+	return posts, metadata, nil
 }
