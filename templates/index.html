@@ -2,32 +2,40 @@
 <div class="container">
 
   <div class="posts-list">
-    {{range $index :=5}}
+    {{with .Posts}}
+    {{range .}}
     <div class="post-item">
-      <div class="post-rank">1</div>
       <div class="post-content">
         <div class="post-title">
-          Show HN: Built a HackerNews clone in Go
-          <a href="#" class="post-link" target="_blank">Title</a>
-          <span class="post-domain">localhost.com</span>
+          <a href="{{.URL}}" class="post-link" target="_blank">{{.Title}}</a>
+          <span class="post-domain">{{.Host}}</span>
 
-          <a href="/post/12111" class="post-link">Tomtom</a>
+          <a href="#" class="post-link">{{.UserName}}</a>
         </div>
         <div class="post-meta">
-          <span class="points">2 points</span>
-          by <a href="/user/1" class="author">AJ</a>
-          <span class="time">1 mins ago</span>
-          <a href="/post/2222" class="comments-link">12 comments</a>
+          <a href="/vote?post_id={{.ID}}" class="author"> <span class="points">{{.GetVoteCountsHuman}}</span></a>|
+          <span class="time">{{.CreatedAtHuman}}</span>
+          | <a href="/comments?post_id={{.ID}}" class="comments-link">{{.GetCommentCountsHuman}}</a>
         </div>
       </div>
     </div>
     {{end}}
+
+    {{end}}
   </div>
 
+
+  {{if gt .Metadata.TotalRecords .Metadata.PageSize}}
   <div class="pagination">
-    <a href="/?page=1" class="more-link">Prev</a>
-    <a href="/?page=1" class="more-link">Next</a>
+    {{if gt .Metadata.PrevPage 0}}
+    <a href="{{.PrevLink}}" class="more-link">Prev</a>
+    {{end}}
+
+    {{if gt .Metadata.NextPage 0}}
+    <a href="{{.NextLink}}" class="more-link">Next</a>
+    {{end}}
   </div>
+  {{end}}
 
 </div>
 {{end}}

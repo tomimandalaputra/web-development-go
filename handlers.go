@@ -1,15 +1,40 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 )
 
 const (
 	loggedInUserKey = "logged_in_user"
 )
 
+func (app *application) readIntWithDefault(r *http.Request, key string, dvalue int) int {
+	v, err := strconv.Atoi(r.URL.Query().Get(key))
+	if err != nil {
+		return dvalue
+	}
+	return v
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "index.html", nil)
+	filter := Filter{
+		Query:    r.URL.Query().Get("q"),
+		OrderBy:  r.URL.Query().Get("order_by"),
+		Page:     app.readIntWithDefault(r, "page", 1),
+		PageSize: app.readIntWithDefault(r, "page_size", 10),
+	}
+	posts, metadata, err := app.postRepo.GetAll(filter)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	app.infoLog.Printf("\nMetadata: %+v\n", metadata)
+	app.render(w, r, "index.html", &templateData{
+		Posts: posts,
+	})
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
@@ -129,6 +154,22 @@ func (app *application) about(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) contact(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "contact.html", nil)
+}
+
+func (app *application) vote(w http.ResponseWriter, r *http.Request) {
+	postID := app.readIntWithDefault(r, "post_id", 0)
+	u := app.getUserFromContext(r.Context())
+
+	err := app.postRepo.AddVote(u.ID, postID)
+	if err != nil {
+		app.errorLog.Printf("error adding vote: %s\n", err.Error())
+		app.session.Put(r, "flash", "voting failed")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	app.session.Put(r, "flash", fmt.Sprintf("You voted for past with id %d", postID))
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) submit(w http.ResponseWriter, r *http.Request) {
