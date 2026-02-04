@@ -212,7 +212,7 @@ func (r *SQLPostRepository) GetAll(filter Filter) ([]Post, Metadata, error) {
 		LEFT JOIN votes v ON p.id = v.post_id
 	`
 
-	var args []interface{}
+	var args []any
 	argIndex := 1
 
 	if filter.Query != "" {
@@ -245,7 +245,7 @@ func (r *SQLPostRepository) GetAll(filter Filter) ([]Post, Metadata, error) {
 	for rows.Next() {
 		var post Post
 		err := rows.Scan(
-			&post.TotalRecords,
+			&totalRecords,
 			&post.ID,
 			&post.Title,
 			&post.URL,
