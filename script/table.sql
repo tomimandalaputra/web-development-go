@@ -29,8 +29,8 @@ CREATE TABLE comments (
 );
 
 CREATE TABLE votes (
-  user_id INTEGER REFERENCES users (user_id) ON DELETE CASCADE,
-  post_id INTEGER REFERENCES posts (post_id) ON DELETE CASCADE,
-  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-  PRIMARY KEY (user_id, post_id)
+   user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+   post_id INTEGER REFERENCES posts(post_id) ON DELETE CASCADE,
+   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (user_id, post_id)
 );
