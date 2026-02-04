@@ -1,6 +1,10 @@
 package main
 
-import "time"
+import (
+	"errors"
+	"math"
+	"time"
+)
 
 type Post struct {
 	ID           int       `json:"id"`
@@ -30,6 +34,18 @@ type Filter struct {
 	Query    int `json:"query"`
 }
 
+func (f *Filter) Validate() error {
+	if f.Page <= 0 || f.PageSize >= 10_000_000 {
+		return errors.New("Invalid page range: 1 to 10 million")
+	}
+
+	if f.PageSize <= 0 || f.PageSize >= 100 {
+		return errors.New("Invalid page range: 1 to 100 max")
+	}
+
+	return nil
+}
+
 type Metadata struct {
 	CurrentPage  int `json:"current_page"`
 	PageSize     int `json:"page_size"`
@@ -38,6 +54,32 @@ type Metadata struct {
 	PrevPage     int `json:"prev_page"`
 	LastPage     int `json:"last_page"`
 	TotalRecords int `json:"total_records"`
+}
+
+func calculateMetadata(totalRecords, page, pageSize int) Metadata {
+	if totalRecords == 0 {
+		return Metadata{}
+	}
+
+	meta := Metadata{
+		CurrentPage:  page,
+		PageSize:     pageSize,
+		FirstPage:    1,
+		LastPage:     int(math.Ceil(float64(totalRecords) / float64(pageSize))),
+		TotalRecords: totalRecords,
+	}
+
+	meta.NextPage = meta.CurrentPage + 1
+	meta.PrevPage = meta.CurrentPage - 1
+
+	if meta.CurrentPage <= meta.FirstPage {
+		meta.PrevPage = 0
+	}
+	if meta.CurrentPage >= meta.NextPage {
+		meta.NextPage = 0
+	}
+
+	return meta
 }
 
 type PostRepository interface {
