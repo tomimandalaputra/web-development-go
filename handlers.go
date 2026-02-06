@@ -33,7 +33,12 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	app.infoLog.Printf("\nMetadata: %+v\n", metadata)
 	app.render(w, r, "index.html", &templateData{
-		Posts: posts,
+		Posts:    posts,
+		Metadata: metadata,
+		NextLink: fmt.Sprintf("/?q=%s&order_by=%s&page=%d&page_size=%d",
+			filter.Query, filter.OrderBy, metadata.NextPage, filter.PageSize),
+		PrevLink: fmt.Sprintf("/?q=%s&order_by=%s&page=%d&page_size=%d",
+			filter.Query, filter.OrderBy, metadata.PrevPage, filter.PageSize),
 	})
 }
 
