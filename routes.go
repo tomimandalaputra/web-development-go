@@ -18,6 +18,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("/logout", secureMiddleware.ThenFunc(app.logout))
 	mux.Handle("/submit", secureMiddleware.Append(app.requireAuth).ThenFunc(app.submit))
 	mux.Handle("/vote", secureMiddleware.Append(app.requireAuth).ThenFunc(app.vote))
+	mux.Handle("/comments", secureMiddleware.Append(app.requireAuth).ThenFunc(app.comments))
 	mux.Handle("/register", secureMiddleware.ThenFunc(app.register))
 	mux.Handle("/contact", secureMiddleware.ThenFunc(app.contact))
 	mux.Handle("/about", secureMiddleware.ThenFunc(app.about))

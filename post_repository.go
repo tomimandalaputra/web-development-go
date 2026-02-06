@@ -282,7 +282,7 @@ func (r *SQLPostRepository) GetComments(postID int) ([]Comment, error) {
 	query := `
 		SELECT c.id, c.body, c.user_id, c.post_id, c.created_at, u.name as user_name
 		FROM comments c
-		LEFT JOIN user u ON c.user_id = u.id
+		LEFT JOIN users u ON c.user_id = u.id
 		WHERE c.post_id = ?
 		ORDER BY c.created_at ASC
 	`
