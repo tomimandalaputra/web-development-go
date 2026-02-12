@@ -102,11 +102,10 @@ func cleanupTestData(t *testing.T) {
 		"votes",
 		"comments",
 		"posts",
-		// "users",
+		"users",
 	}
 	for _, table := range tables {
 		_, err := testDB.Exec("DELETE FROM " + table)
 		assert.NoError(t, err)
 	}
-
 }

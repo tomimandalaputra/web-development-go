@@ -27,7 +27,7 @@ func TestSQLUserRepository_CreateUser(t *testing.T) {
 
 	userID, err = repo.CreateUser(
 		"John Doe",
-		"john2@doe.com",
+		"john@doe.com",
 		generateString(73),
 		"avatar",
 	)
@@ -41,7 +41,7 @@ func TestSQLUserRepository_CreateUser_DuplicateEmail(t *testing.T) {
 
 	userID, err := repo.CreateUser(
 		"John Doe",
-		"example@mail.com",
+		"john@doe.com",
 		"testpassword",
 		"avatar",
 	)
@@ -50,7 +50,7 @@ func TestSQLUserRepository_CreateUser_DuplicateEmail(t *testing.T) {
 
 	_, err = repo.CreateUser(
 		"John Doe",
-		"example@mail.com",
+		"john@doe.com",
 		"testpassword",
 		"avatar",
 	)
@@ -65,14 +65,14 @@ func TestSQLUserRepository_Authenticate_Success(t *testing.T) {
 
 	currentUserID, err := repo.CreateUser(
 		"John Doe",
-		"john2@doe.com",
+		"john@doe.com",
 		"testpassword",
 		"avatar",
 	)
 	assert.Nil(t, err)
 	assert.Greater(t, currentUserID, 0)
 
-	authUserID, err := repo.Authenticate("john2@doe.com", "testpassword")
+	authUserID, err := repo.Authenticate("john@doe.com", "testpassword")
 	assert.NoError(t, err)
 	assert.Equal(t, currentUserID, authUserID)
 }
@@ -84,14 +84,14 @@ func TestSQLUserRepository_Authenticate_WrongPassword(t *testing.T) {
 
 	currentUserID, err := repo.CreateUser(
 		"John Doe",
-		"john3@doe.com",
+		"john@doe.com",
 		"testpassword",
 		"avatar",
 	)
 	assert.Nil(t, err)
 	assert.Greater(t, currentUserID, 0)
 
-	_, err = repo.Authenticate("john3@doe.com", "wrongpassword")
+	_, err = repo.Authenticate("john@doe.com", "wrongpassword")
 	assert.Error(t, err)
 	assert.Equal(t, ErrInvalidCredential, err)
 }
