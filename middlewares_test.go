@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -44,4 +45,27 @@ func TestRecover(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	assert.Equal(t, "Internal Server Error\n", w.Body.String())
 	assert.Equal(t, "close", w.Header().Get("Connection"))
+}
+
+func TestRequireAuth_Authenticated(t *testing.T) {
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("protected"))
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	req = req.WithContext(contextWithAuth(req.Context(), true))
+	w := httptest.NewRecorder()
+
+	handler := testApp.requireAuth(testHandler)
+
+	handler.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "protected", w.Body.String())
+	assert.Equal(t, "no-cache", w.Header().Get("Cache-Control"))
+}
+
+func contextWithAuth(ctx context.Context, isAuth interface{}) context.Context {
+	return context.WithValue(ctx, contextAuthKey, isAuth)
 }
