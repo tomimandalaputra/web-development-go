@@ -2,13 +2,18 @@ package main
 
 import (
 	"database/sql"
+	"io"
+	"log"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/golangcollege/sessions"
 	"github.com/stretchr/testify/assert"
 )
 
 var testDB *sql.DB
+var testApp *application
 
 func TestMain(m *testing.M) {
 	var err error
@@ -21,6 +26,8 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
+	testApp = setupApp(testDB)
+
 	if err = setupTestSchema(testDB); err != nil {
 		panic(err)
 	}
@@ -28,6 +35,21 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 	testDB.Close()
 	os.Exit(code)
+}
+
+func setupApp(db *sql.DB) *application {
+	sess := sessions.New([]byte("super-secret-session-key"))
+	sess.Lifetime = 2 * time.Hour
+
+	return &application{
+		errorLog:    log.New(io.Discard, "", 0),
+		infoLog:     log.New(io.Discard, "", 0),
+		userRepo:    NewSQLUserRepository(db),
+		postRepo:    NewSQLPostRepository(db),
+		templateDir: "./templates",
+		publicPath:  "./public",
+		session:     sess,
+	}
 }
 
 func setupTestSchema(db *sql.DB) error {
